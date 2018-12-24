@@ -1,0 +1,72 @@
+#define _CRT_SECURE_NO_WARNINGS 
+#include <stdio.h> 
+#define cnMAX 1000 // Размер массива чисел 
+#define cnMAX_SIMVOL 40 //Размер массива символов
+#define cnVANN_EC 1 // Количество ванн в комнате с сервисом "ECONOM".
+#define cnVANN_ST 3 // Количество ванн в комнате с сервисом "STANDART".
+#define cnVANN_CO 5 // Количество ванн в комнате с сервисом "COMFORT".
+int main()
+{
+	FILE *R = fopen("rooms.txt", "r"); // Открытие для чтения файла, в котором записана информация о комнатах.
+	struct rooms // Создание структуры, в которой будут храниться данные о комнате.
+	{
+		int ID;
+		int BANUM;
+		char SERVICE[cnMAX_SIMVOL];
+		int CAPACITY;
+		int COST;
+	};
+	int kolvo_komnat; // Переменная для хранения количества комнат.
+	fscanf(R, "%d", &kolvo_komnat); // Считывание с файла rooms.txt количество комнат.
+	char service_ec[cnMAX_SIMVOL] = "ECONOMY";
+	char service_st[cnMAX_SIMVOL] = "STANDARD";
+	char service_co[cnMAX_SIMVOL] = "COMFORT";
+	rooms mas[cnMAX]; // Создание массива структур.
+	int opred_vann = 0; // Переменная для определения количества ванн.
+	for (int i = 0; i < kolvo_komnat; i++) // Проход по циклу, считывание информации о комнатах и определение количества ванн в каждой из них.
+	{
+		fscanf(R, "%d %s %d %d", &mas[i].ID, &mas[i].SERVICE, &mas[i].CAPACITY, &mas[i].COST);
+		if (mas[i].SERVICE[0] == service_ec[0])
+		{
+			opred_vann = cnVANN_EC;
+			mas[i].BANUM = opred_vann;
+		}
+		else
+			if (mas[i].SERVICE[0] == service_st[0])
+			{
+				opred_vann = cnVANN_ST;
+				mas[i].BANUM = opred_vann;
+			}
+			else
+				if (mas[i].SERVICE[0] == service_co[0])
+				{
+					opred_vann = cnVANN_CO;
+					mas[i].BANUM = opred_vann;
+				}
+	}
+	FILE *I = fopen("input01.txt", "r"); // Открытие файл input.txt для чтения информации. 
+	int nomer_komnat = 0; // Переменная для хранения номера комнаты. 
+	FILE *O = fopen("output01.txt", "w"); // Открытие файл output.txt для вывода информации.
+	int kolvo_zaprosov = 0; // Переменная для хранения количества запросов
+	fscanf(I, "%d", &kolvo_zaprosov); // Считывание количества запросов.
+	for (int n = 0; n < kolvo_zaprosov; n++) // Проход по циклу и определение существования комнаты из запроса, если существует, то вывод информации о ней.
+	{
+		bool log = false;
+		fscanf(I, "%*s%*s%*s%*s%d", &nomer_komnat); // Считывание номера комнаты с файла rooms.txt.
+		for (int i = 0; i< kolvo_komnat; i++)
+		{
+			if (mas[i].ID == nomer_komnat) // Сравнивание номеров комнат.
+			{
+				log = true;
+				fprintf(O, "ROOM %d : CAPACITY %d, %d BATHROOMS, %d ROUBLES. \n", nomer_komnat,mas[i].CAPACITY,mas[i].BANUM,mas[i].COST); // Вывод информации о комнате.
+				break;
+			}
+		}
+		if (log == false)
+			fprintf(O,"THERE IS NO ROOM WITH ID = %d.\n", nomer_komnat); // Вывод информации о том, что такой комнаты не существует.
+	}
+	fclose(R); // Закрытие файл rooms.txt.
+	fclose(I); // Закрытие файл input01.txt.
+	fclose(O); // Закрытие файл output01.txt.
+	return 0;
+}
